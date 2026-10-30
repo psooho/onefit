@@ -13,10 +13,17 @@ git에 들어 있지 않은 것이 네 가지 있다 — 아래 순서대로 채
 ### 1. 받기
 
 ```bash
-git clone https://github.com/psooho/project.git
+git clone https://github.com/psooho/onefit.git
 ```
 
 필요한 것: Python 3.12, Node 22 이상, (배포하려면) gcloud CLI.
+
+이미 받아둔 사본이 있다면 저장소 이름이 `project`에서 `onefit`으로 바뀌었으니 원격 주소를
+한 번 고쳐둔다 (옛 주소도 GitHub가 넘겨주긴 한다).
+
+```bash
+git remote set-url origin https://github.com/psooho/onefit.git
+```
 
 ### 2. 백엔드 준비
 
