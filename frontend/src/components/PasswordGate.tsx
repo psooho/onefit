@@ -73,7 +73,9 @@ export function PasswordGate({ children }: PasswordGateProps) {
   return (
     <div className="gate">
       <form className="gate-box" onSubmit={handleSubmit}>
-        <h1>원핏</h1>
+        <h1>
+          원핏 <span className="page-title-tagline">— 전후사진 맞추기</span>
+        </h1>
         <p>병원 공용 암호를 입력하세요. 이 브라우저에서는 한 번만 입력하면 됩니다.</p>
         <input
           type="password"

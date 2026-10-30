@@ -633,3 +633,12 @@
 @media (prefers-reduced-motion: reduce) {
   .progress-fill--working::after { animation: none; }
 }
+
+/* 제목 옆 설명. 이름보다 작고 연하게 둬서 "원핏"이 이름으로 읽히게 한다.
+   좁은 화면에서는 줄이 바뀌므로 h1에 그대로 흐르게 두고 따로 띄우지 않는다. */
+.page-title-tagline {
+  font-size: 0.55em;
+  font-weight: 500;
+  color: #6b7280;
+  white-space: nowrap;
+}
