@@ -115,8 +115,12 @@ const MATCH_STEP = 0.1;
 const MATCH_MIN = 0;
 const MATCH_MAX = 1.5;
 
-/** 조절값의 처음 상태. scale은 후 사진, middleScale은 중간 사진의 크기다 (둘 다 전 사진 대비). */
-const INITIAL_ADJUST = { brightness: 1, tone: 1, scale: 1, middleScale: 1 };
+/** 조절값의 처음 상태. scale은 후 사진, middleScale은 중간 사진의 크기다 (둘 다 전 사진 대비).
+ *
+ *  밝기·색감은 0에서 시작한다 — 원본 그대로다. 자동으로 맞춰놓으면 원본과 달라진 걸
+ *  나중에 알아차리게 되므로, 손대지 않은 사진을 먼저 보고 필요한 만큼만 올리게 한다.
+ *  크기는 1(=100%)이 "전 사진과 같은 배율"이라 그대로 둔다. */
+const INITIAL_ADJUST = { brightness: 0, tone: 0, scale: 1, middleScale: 1 };
 
 async function processPair(
   photos: Photos,
@@ -1171,22 +1175,24 @@ function App() {
           <AdjustSlider
             label="밝기 보정"
             value={adjust.brightness}
+            defaultValue={INITIAL_ADJUST.brightness}
             min={MATCH_MIN}
             max={MATCH_MAX}
             step={MATCH_STEP}
             busy={adjustBusy}
-            hint="0%면 원본, 100%면 전 사진에 맞춤"
+            hint="기본은 원본 그대로입니다. 올리면 전 사진 밝기에 맞춥니다"
             onPreview={(value) => applyAdjust({ brightness: value }, true)}
             onCommit={(value) => applyAdjust({ brightness: value })}
           />
           <AdjustSlider
             label="색감 보정"
             value={adjust.tone}
+            defaultValue={INITIAL_ADJUST.tone}
             min={MATCH_MIN}
             max={MATCH_MAX}
             step={MATCH_STEP}
             busy={adjustBusy}
-            hint="두 사진의 색이 실제로 다를 때만 효과가 보입니다"
+            hint="기본은 원본 그대로입니다. 올리면 전 사진 색에 맞춥니다"
             onPreview={(value) => applyAdjust({ tone: value }, true)}
             onCommit={(value) => applyAdjust({ tone: value })}
           />
@@ -1194,6 +1200,7 @@ function App() {
             <AdjustSlider
               label="중간 사진 크기"
               value={adjust.middleScale}
+              defaultValue={INITIAL_ADJUST.middleScale}
               min={SCALE_MIN}
               max={SCALE_MAX}
               step={SCALE_STEP}
@@ -1206,6 +1213,7 @@ function App() {
           <AdjustSlider
             label="후 사진 크기"
             value={adjust.scale}
+            defaultValue={INITIAL_ADJUST.scale}
             min={SCALE_MIN}
             max={SCALE_MAX}
             step={SCALE_STEP}

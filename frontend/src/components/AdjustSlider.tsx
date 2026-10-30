@@ -4,6 +4,9 @@ interface AdjustSliderProps {
   label: string;
   /** 실제로 적용된 값 (0~1.5 같은 비율). */
   value: number;
+  /** 손대지 않은 상태의 값. 되돌리기가 돌아갈 자리이고, 이 값과 다르면 바뀐 것으로 표시한다.
+   *  밝기·색감은 0(원본 그대로), 크기는 1(전 사진과 같은 배율)이라 항목마다 다르다. */
+  defaultValue: number;
   min: number;
   max: number;
   step: number;
@@ -22,6 +25,7 @@ interface AdjustSliderProps {
 export function AdjustSlider({
   label,
   value,
+  defaultValue,
   min,
   max,
   step,
@@ -64,11 +68,16 @@ export function AdjustSlider({
         onKeyUp={commit}
         onBlur={commit}
       />
-      <span className={`adjust-value${shown !== 1 ? " adjust-value--changed" : ""}`}>
+      <span className={`adjust-value${shown !== defaultValue ? " adjust-value--changed" : ""}`}>
         {busy ? "..." : `${toPercent(shown)}%`}
       </span>
-      {value !== 1 && (
-        <button type="button" className="adjust-reset" disabled={busy} onClick={() => onCommit(1)}>
+      {value !== defaultValue && (
+        <button
+          type="button"
+          className="adjust-reset"
+          disabled={busy}
+          onClick={() => onCommit(defaultValue)}
+        >
           되돌리기
         </button>
       )}

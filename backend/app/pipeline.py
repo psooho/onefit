@@ -578,6 +578,12 @@ def _match_color(
     match_contrast=False면 평균만 맞추고 표준편차(대비)는 건드리지 않는다. 통계 범위가
     전/후에서 정확히 같은 부위라는 보장이 없는 수동 2점 모드용이다 — 표준편차까지 맞추면
     작은 표본 차이가 색 전체를 증폭시켜 사진이 망가진다."""
+    if brightness_strength <= 0 and tone_strength <= 0:
+        # 둘 다 끄면 바꿀 것이 없다. 그런데 LAB로 바꿨다 되돌리는 것만으로도 픽셀이
+        # 달라진다 (실측: 최대 10, 평균 0.4, 픽셀의 77.7%). 보정을 끈 것이 기본값이라
+        # 이 경로로 대부분의 사진이 지나가므로, 아예 건너뛰어 원본을 그대로 남긴다.
+        return target.copy()
+
     reference_lab = cv2.cvtColor(reference, cv2.COLOR_BGR2LAB).astype(np.float32)
     target_lab = cv2.cvtColor(target, cv2.COLOR_BGR2LAB).astype(np.float32)
     result_lab = target_lab.copy()
