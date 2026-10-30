@@ -876,10 +876,10 @@ function App() {
   return (
     <div className="page">
       <header className="page-header">
-        <h1>전후사진 변환</h1>
+        <h1>원핏</h1>
         <p>
-          전/후 사진을 넣고 변환한 뒤 다운로드하세요. 경과를 함께 보려면 <strong>중간</strong> 사진도
-          넣으세요 — 세 장을 같은 틀에 맞춥니다.
+          전/후 사진을 하나의 기준에 맞춰드립니다. 넣고 변환한 뒤 다운로드하세요. 경과를 함께
+          보려면 <strong>중간</strong> 사진도 넣으세요 — 세 장을 같은 틀에 맞춥니다.
         </p>
       </header>
 

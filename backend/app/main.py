@@ -38,7 +38,7 @@ if APP_PASSWORD and not APP_PASSWORD.isascii():
     # 바로 알 수 있도록 시작할 때 경고를 남긴다.
     logger.warning("APP_PASSWORD에 영문·숫자 외 문자가 있습니다. 브라우저에 따라 로그인이 실패할 수 있습니다.")
 
-app = FastAPI(title="전후사진 변환 API")
+app = FastAPI(title="원핏 API")
 
 
 def _password_matches(candidate: str) -> bool:
