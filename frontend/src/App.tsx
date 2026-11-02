@@ -382,6 +382,16 @@ function App() {
     };
   }, [beforePhoto, middlePhoto, afterPhoto]);
 
+  /** 지금 넣어둔 사진들. 모자이크만 하기는 전/중간/후 어느 칸이든 한 장만 있어도 된다 —
+   *  가리기만 하는 일에 전후 한 쌍이 필요할 이유가 없다. */
+  const photoSlots = (
+    [
+      { side: "before", label: "전", photo: beforePhoto },
+      { side: "middle", label: "중간", photo: middlePhoto },
+      { side: "after", label: "후", photo: afterPhoto },
+    ] as const
+  ).filter((slot): slot is typeof slot & { photo: File } => slot.photo !== null);
+
   /** 변환 요청에 같이 보낼, 결과 위에 칠한 자국. */
   function strokePayload() {
     return resultStrokes;
@@ -729,10 +739,7 @@ function App() {
    *  큰 사진은 한 장에 2초 남짓 걸린다. 두 장을 한 번에 기다리게 하면 멈춘 것처럼 보여서,
    *  먼저 끝난 사진이라도 바로 보여준다. */
   async function buildMosaics(face: boolean, strokes: StrokeSides) {
-    const jobs: { side: Side; label: string; photo: File; strokes: BrushStroke[] }[] = [];
-    if (beforePhoto) jobs.push({ side: "before", label: "전", photo: beforePhoto, strokes: strokes.before });
-    if (middlePhoto) jobs.push({ side: "middle", label: "중간", photo: middlePhoto, strokes: strokes.middle });
-    if (afterPhoto) jobs.push({ side: "after", label: "후", photo: afterPhoto, strokes: strokes.after });
+    const jobs = photoSlots.map((slot) => ({ ...slot, strokes: strokes[slot.side] }));
 
     const made: Record<Side, Blob | null> = { before: null, middle: null, after: null };
     const notices: string[] = [];
@@ -757,7 +764,7 @@ function App() {
    *
    *  실패해도 칠하기는 할 수 있어야 하므로 오류로 막지 않고 원본 위에 칠하게 둔다. */
   async function refreshFacePreview(face: boolean) {
-    if (!beforePhoto) return;
+    if (photoSlots.length === 0) return;
     if (!face) {
       clearFacePreview();
       return;
@@ -795,7 +802,7 @@ function App() {
    *  화면의 붓 자국은 브라우저가 그린 미리보기라, 저장할 파일은 여기서 서버에 한 번 더
    *  요청해 원본 화질로 만든다. */
   async function handleDownloadMosaic() {
-    if (!beforePhoto) return;
+    if (photoSlots.length === 0) return;
     setMosaicOnlyBusy(true);
     setError(null);
     try {
@@ -805,22 +812,17 @@ function App() {
       const ready =
         maskFace &&
         !hasStrokes(sourceStrokes) &&
-        facePreview.before &&
-        (!middlePhoto || facePreview.middle) &&
-        (!afterPhoto || facePreview.after);
-      const files = ready
+        photoSlots.every((slot) => facePreview[slot.side]);
+      const files: Record<Side, Blob | null> = ready
         ? {
-            before: facePreview.before!.blob,
+            before: facePreview.before?.blob ?? null,
             middle: facePreview.middle?.blob ?? null,
             after: facePreview.after?.blob ?? null,
           }
         : (await buildMosaics(maskFace, sourceStrokes)).made;
-      if (files.before) downloadBlob(files.before, withJpgName(beforePhoto.name, "mosaic"));
-      if (files.middle && middlePhoto) {
-        downloadBlob(files.middle, withJpgName(middlePhoto.name, "mosaic"));
-      }
-      if (files.after && afterPhoto) {
-        downloadBlob(files.after, withJpgName(afterPhoto.name, "mosaic"));
+      for (const slot of photoSlots) {
+        const blob = files[slot.side];
+        if (blob) downloadBlob(blob, withJpgName(slot.photo.name, "mosaic"));
       }
     } catch (cause) {
       setError(messageOf(cause, "모자이크 저장에 실패했습니다. 다시 시도해주세요."));
@@ -1280,7 +1282,7 @@ function App() {
             <button type="button" className="submit-btn" disabled={!canTransform} onClick={() => handleTransform()}>
               {suggesting ? "눈썹 위치를 찾는 중..." : status === "processing" ? "처리 중..." : "사진 변환"}
             </button>
-            {beforePhoto && !painting && (
+            {photoSlots.length > 0 && !painting && (
               <button
                 type="button"
                 className="submit-btn submit-btn--secondary"
